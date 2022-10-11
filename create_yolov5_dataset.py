@@ -99,14 +99,14 @@ def split_class_dir_ratio(in_dir, images_dir, labels_dir, output, ratio, seed, e
     yaml_data["nc"] = len(classes_labels)
     yaml_data["names"] = classes_labels
 
-    with open(os.path.join(f"{os.path.basename(output)}.yaml"), 'w') as outfile:
+    with open(os.path.join(f"{output}.yaml"), 'w') as outfile:
         yaml.dump(yaml_data, outfile, default_flow_style=None)
 
 
 if __name__ == "__main__":
     print("Processing ... ")
     in_dir = "dataset2"    
-    out_name = f"{in_dir}_yolov5"
+    out_name = f"out/{in_dir}_yolov5"
     ratio = (0.9, 0.1)
     seed = 1337
     ext = "png"
