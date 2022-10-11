@@ -12,13 +12,19 @@ def split_lbl_img(in_folder, out_folder, img_format):
     lbl_files = glob(f"{in_folder}\\obj_train_data\\*.txt")
     img_files = glob(f"{in_folder}\\obj_train_data\\*.{img_format}")
 
-    for lbl_file in tqdm(lbl_files):
-        basename=os.path.basename(lbl_file)
-        shutil.copyfile(lbl_file, os.path.join(out_folder, "labels", basename))
+    lbl_files.sort()
+    img_files.sort()
 
-    for img_file in tqdm(img_files):
-        basename=os.path.basename(img_file)
-        shutil.copyfile(img_file, os.path.join(out_folder, "images", basename))
+    for lbl_file, img_file in tqdm(zip(lbl_files, img_files), total=len(img_files)):
+        with open(lbl_file) as f:
+            # rm files fith no labels
+            if f.read() == '':
+                continue
+
+        basename_lbl = os.path.basename(lbl_file)
+        basename_img = os.path.basename(img_file)
+        shutil.copyfile(lbl_file, os.path.join(out_folder, "labels", basename_lbl))
+        shutil.copyfile(img_file, os.path.join(out_folder, "images", basename_img))
     
     shutil.copyfile(f"{in_folder}\\obj.names", f"{out_folder}\\obj.names")
 
