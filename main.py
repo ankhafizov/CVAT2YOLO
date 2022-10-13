@@ -8,8 +8,6 @@ TEMP_FOLDER = "TEMP"
 
 
 def main():
-
-    # ------------------ ARG parse ------------------
     parser = argparse.ArgumentParser(description='Converts CVAT YOLO 1.1 to COCO format')
     parser.add_argument('--CVAT', dest='CVAT_input_folder', required=True,
                         help='path to the root folder of imported from CVAT YOLO 1.1 dataset')
@@ -24,6 +22,7 @@ def main():
 
     args = parser.parse_args()
 
+    # ------------------ ARG parse ------------------
     CVAT_input_folder = args.CVAT_input_folder
     img_format = args.img_format
     split = args.split
@@ -44,4 +43,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

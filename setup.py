@@ -8,7 +8,7 @@ setup(
     long_description='Converts CVAT YOLO 1.1 to COCO format',
     include_package_data=True,
     entry_points = {
-        'console_scripts' : ['cvat2yolo=CVAT2YOLO:main'],
+        'console_scripts' : ['cvat2yolo=main:main'],
     },
     install_requires=[
         "PyYAML==6.0",
