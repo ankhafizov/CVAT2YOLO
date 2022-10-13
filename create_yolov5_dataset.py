@@ -76,6 +76,7 @@ def copy_files(files_type, labels_dir, output, ext):
 
 
 def split_class_dir_ratio(in_dir, images_dir, labels_dir, output, ratio, seed, ext):
+    print("Forming CVAT. Processing....")
     files = setup_files(images_dir, seed, ext)
 
     # the data was shuffled already
@@ -101,6 +102,7 @@ def split_class_dir_ratio(in_dir, images_dir, labels_dir, output, ratio, seed, e
 
     with open(os.path.join(f"{output}.yaml"), 'w') as outfile:
         yaml.dump(yaml_data, outfile, default_flow_style=None)
+    print("Completed")
 
 
 if __name__ == "__main__":
