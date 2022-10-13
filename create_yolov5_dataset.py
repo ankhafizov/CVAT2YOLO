@@ -85,10 +85,10 @@ def split_class_dir_ratio(in_dir, images_dir, labels_dir, output, ratio, seed, e
     li = split_files(files, split_train_idx, split_val_idx, len(ratio) == 3)
     copy_files(li, labels_dir, output, ext)
 
-    yaml_data = {"path": os.path.split(output)[-1]}
+    yaml_data = {"path": f"data\{os.path.split(output)[-1]}"}
 
-    yaml_data["train"] = os.path.join(yaml_data["path"], "images", "train")
-    yaml_data["val"] = os.path.join(yaml_data["path"], "images", "val")
+    yaml_data["train"] = os.path.join("images", "train")
+    yaml_data["val"] = os.path.join("images", "val")
 
     if len(ratio) == 3:
         yaml_data["test"] = os.path.join(yaml_data["path"], "images", "test")
