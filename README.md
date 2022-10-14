@@ -4,13 +4,17 @@ Converter CVAT dataset to YOLOv5 format
 
 # Installation
 
-`pip install git+https://github.com/ankhafizov/CVAT2YOLO.git` 
+`git clone https://github.com/ankhafizov/CVAT2YOLO.git`
+
+`cd CVAT2YOLO`
+
+`pip install -e .` 
 
 # Usage
 
 Example
 
-`cvat2yolo --CVAT "task 10.06.2022-2022_10_07_14_51_13-yolo 1.1" --img_format png --split 0.9 --output_folder "out/yolov5"`
+`cvat2yolo --CVAT "task_сизы 10.06.2022-2022_10_07_14_51_13-yolo 1.1" --img_format png --split 0.9 --output_folder "out/yolov5"`
 
 where kwargs:
 
