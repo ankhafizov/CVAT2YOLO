@@ -9,8 +9,8 @@ def split_lbl_img(in_folder, out_folder, img_format):
     Path(out_folder, "labels").mkdir(parents=True, exist_ok=True)
     Path(out_folder, "images").mkdir(parents=True, exist_ok=True)
 
-    lbl_files = glob(f"{in_folder}\\obj_train_data\\*.txt")
-    img_files = glob(f"{in_folder}\\obj_train_data\\*.{img_format}")
+    lbl_files = glob(f"{in_folder}/obj_train_data/*.txt")
+    img_files = glob(f"{in_folder}/obj_train_data/*.{img_format}")
 
     lbl_files.sort()
     img_files.sort()
@@ -26,7 +26,7 @@ def split_lbl_img(in_folder, out_folder, img_format):
         shutil.copyfile(lbl_file, os.path.join(out_folder, "labels", basename_lbl))
         shutil.copyfile(img_file, os.path.join(out_folder, "images", basename_img))
     
-    shutil.copyfile(f"{in_folder}\\obj.names", f"{out_folder}\\obj.names")
+    shutil.copyfile(f"{in_folder}/obj.names", f"{out_folder}/obj.names")
 
 
 if __name__ == "__main__":
