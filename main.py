@@ -5,6 +5,7 @@ from split_labels_and_images import split_lbl_img
 from create_yolov5_dataset import split_class_dir_ratio
 
 from split_auto import autosplit
+from split_manual import manualsplit
 
 
 TEMP_FOLDER = "TEMP"
@@ -105,7 +106,15 @@ def main(**kwargs):
             lbl_extention="txt",
         )
     elif mode == "manual":
-        pass
+        manualsplit(
+            output_folder,
+            train_folder,
+            val_folder,
+            test_folder,
+            img_format,
+            percentage_empty,
+            lbl_extention="txt",
+        )
     # -----------------------------------------------
 
     # shutil.rmtree(TEMP_FOLDER)
