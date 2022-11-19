@@ -11,6 +11,14 @@ def _is_txt_file_empty(file_pth):
 
 
 def split_lbl_img(in_folder, out_folder, img_format, percentage_of_empty_files):
+    """Devides imgs and labels into different folders
+
+    Args:
+        in_folder (str): path to folder with imgs and labels mixed
+        out_folder (str): path to put folder, where "labels" and "images" will be created
+        img_format (str): example : "png"
+        percentage_of_empty_files (str): how many images without labels to preserve
+    """
     Path(out_folder, "labels").mkdir(parents=True, exist_ok=True)
     Path(out_folder, "images").mkdir(parents=True, exist_ok=True)
 
