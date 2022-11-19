@@ -1,4 +1,6 @@
-import argparse
+import os
+
+import click
 from split_labels_and_images import split_lbl_img
 from create_yolov5_dataset import split_class_dir_ratio
 import shutil
@@ -7,75 +9,96 @@ import shutil
 TEMP_FOLDER = "TEMP"
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Converts CVAT YOLO 1.1 to COCO format"
-    )
-    parser.add_argument(
-        "--CVAT",
-        dest="CVAT_input_folder",
-        required=True,
-        help="Path to the root folder of imported from CVAT YOLO 1.1 dataset",
-    )
-    parser.add_argument(
-        "--img_format", dest="img_format", required=True, help="Format of images"
-    )
-    parser.add_argument(
-        "--split",
-        dest="split",
-        type=float,
-        required=True,
-        help="A percentage of a split, e.g. 0.9 means split 0.9 for train and 0.1 for test",
-    )
-    parser.add_argument(
-        "--seed",
-        dest="seed",
-        type=int,
-        default=1227,
-        help="A random seed for reproducebiliry",
-    )
-    parser.add_argument(
-        "--output_folder",
-        dest="output_folder",
-        required=True,
-        help="Path to converted dataset folder {root}/{dataset name}",
-    )
-    parser.add_argument(
-        "--percentage_empty",
-        dest="percentage_empty",
-        default=10,
-        help="Percentage of images without any labels in relation to full dataset size",
-    )
-
-    args = parser.parse_args()
+@click.command()
+@click.option(
+    "--cvat",
+    help="Path to the root folder of imported from CVAT YOLO 1.1 dataset",
+    required=True,
+    type=str,
+)
+@click.option(
+    "--mode",
+    help="'autosplit' or 'manual' (as it was exported from CVAT)",
+    required=True,
+    type=str,
+)
+@click.option(
+    "--output_folder",
+    help="Path to converted dataset folder, e.g. in format {root}/{dataset name}",
+    required=True,
+    type=str,
+)
+@click.option(
+    "--split",
+    help="A percentage of a split, e.g. 0.9 means split 0.9 for train and 0.1 for test",
+    type=float,
+)
+@click.option(
+    "--train_folder",
+    default="obj_Train_data",
+    help="Folder with Train subset inside cvat path (default obj_Train_data)",
+    type=str,
+)
+@click.option(
+    "--val_folder",
+    default="obj_Validation_data",
+    help="Folder with Val subset inside cvat path (default obj_Validation_data)",
+    type=str,
+)
+@click.option(
+    "--test_folder",
+    default="obj_Test_data",
+    help="Folder with Test subset inside cvat path (default obj_Test_data)",
+    type=str,
+)
+@click.option("--img_format", default="png", help="Format of images", type=str)
+@click.option(
+    "--percentage_empty",
+    default=10,
+    help="Percentage of images without any labels in relation to full dataset size",
+    type=float,
+)
+def main(**kwargs):
 
     # ------------------ ARG parse ------------------
-    CVAT_input_folder = args.CVAT_input_folder
-    img_format = args.img_format
-    split = args.split
-    seed = args.seed
-    output_folder = args.output_folder
-    percentage_empty = args.percentage_empty
-    # -----------------------------------------------
+    CVAT_input_folder = kwargs["cvat"]
+    mode = kwargs["mode"]
+    output_folder = kwargs["output_folder"]
+    split = kwargs["split"]
+    train_folder = kwargs["train_folder"]
+    val_folder = kwargs["val_folder"]
+    test_folder = kwargs["test_folder"]
+    percentage_empty = int(kwargs["percentage_empty"])
+    img_format = kwargs["img_format"]
+
+    # --------------- Assertions --------------------
+
+    assert "." not in img_format, "img_format must be without ."
+    assert (
+        mode == "autosplit" or mode == "manual"
+    ), f"mode must be 'autosplit' or 'manual', {mode} was given"
+    if mode == "autosplit":
+        assert abs(split) < 1, f"float split (0<split<1) is required, {split} was given"
+        assert os.path.exists(
+            train_folder
+        ), f"{train_folder} does not exist in {CVAT_input_folder}"
+    elif mode == "manual":
+        assert (
+            os.path.exists(train_folder)
+            or os.path.exists(val_folder)
+            or os.path.exists(test_folder)
+        ), f"At least one of {train_folder}, {val_folder} and {test_folder} must exist in {CVAT_input_folder}"
+        if split is not None:
+            print("WARNING: skipping split value n manual mode")
 
     # --------------------- main --------------------
-    assert "." not in img_format, "img_format must be without ."
-    split_lbl_img(CVAT_input_folder, TEMP_FOLDER, img_format, percentage_empty)
-
-    images_dir = f"{TEMP_FOLDER}/images"
-    labels_dir = f"{TEMP_FOLDER}/labels"
-    split_class_dir_ratio(
-        TEMP_FOLDER,
-        images_dir,
-        labels_dir,
-        output_folder,
-        (split, 1 - split),
-        seed,
-        img_format,
-    )
+    if mode == "autosplit":
+        pass
+    elif mode == "manual":
+        pass
     # -----------------------------------------------
 
-    shutil.rmtree(TEMP_FOLDER)
+    # shutil.rmtree(TEMP_FOLDER)
 
 
 if __name__ == "__main__":
