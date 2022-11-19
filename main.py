@@ -3,7 +3,8 @@ import os
 import click
 from split_labels_and_images import split_lbl_img
 from create_yolov5_dataset import split_class_dir_ratio
-import shutil
+
+from split_auto import autosplit
 
 
 TEMP_FOLDER = "TEMP"
@@ -93,7 +94,16 @@ def main(**kwargs):
 
     # --------------------- main --------------------
     if mode == "autosplit":
-        pass
+        autosplit(
+            output_folder,
+            train_folder,
+            val_folder,
+            test_folder,
+            img_format,
+            split,
+            percentage_empty,
+            lbl_extention="txt",
+        )
     elif mode == "manual":
         pass
     # -----------------------------------------------
