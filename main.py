@@ -6,14 +6,24 @@ import yaml
 
 from split_auto import autosplit
 from split_manual import manualsplit
-from lib_utils import create_YOLOv5_folder_tree
+from lib_utils import create_YOLOv5_folder_tree, remove_unwanted_classes
 
 
-def get_datset_classes(names_file):
+def get_datset_classes(names_file, classes_to_keep):
     with open(names_file) as f:
-        names = f.read().splitlines()
+        dataset_names = f.read().splitlines()
 
-    return names
+    if classes_to_keep == "keep-all":
+        return dataset_names
+    else:
+        classes_to_keep = classes_to_keep.split("|")
+        names = [n for n in dataset_names if n in classes_to_keep]
+        if len(names) == 0:
+            raise ValueError(
+                f"--classes arg is not valid, dataset classes: {dataset_names}"
+            )
+        print(f"KEEPING CLASSES: {names}")
+        return names
 
 
 def form_yaml_file(output_folder, classes):
@@ -87,6 +97,9 @@ def form_yaml_file(output_folder, classes):
     help="Percentage of images without any labels in relation to full dataset size",
     type=float,
 )
+@click.option(
+    "--classes", default="keep-all", help="Classes which labels to keep", type=str
+)
 def main(**kwargs):
 
     # ------------------ ARG parse ------------------
@@ -101,6 +114,8 @@ def main(**kwargs):
     img_format = kwargs["img_format"]
 
     names_file = "obj.names"
+    names_file_pth = os.path.join(CVAT_input_folder, names_file)
+    classes_to_keep = kwargs["classes"]
 
     # --------------- Assertions --------------------
 
@@ -128,8 +143,10 @@ def main(**kwargs):
     CVAT_backup_folder = f"{CVAT_input_folder}_backup"
     shutil.copytree(CVAT_input_folder, CVAT_backup_folder)
 
-    classes = get_datset_classes(os.path.join(CVAT_input_folder, names_file))
-    form_yaml_file(output_folder, classes)
+    classes_to_keep = get_datset_classes(names_file_pth, classes_to_keep)
+    remove_unwanted_classes(CVAT_input_folder, names_file_pth, classes_to_keep)
+
+    form_yaml_file(output_folder, classes_to_keep)
 
     if mode == "autosplit":
         autosplit(
