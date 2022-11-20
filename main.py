@@ -2,12 +2,39 @@ import os
 
 import click
 import shutil
+import yaml
 
 from split_auto import autosplit
 from split_manual import manualsplit
 
 
-TEMP_FOLDER = "TEMP"
+def get_datset_classes(names_file):
+    with open(names_file) as f:
+        names = f.read().splitlines()
+
+    return names
+
+
+def form_yaml_file(output_folder, classes):
+    number_of_classes = len(classes)
+    path = os.path.join("data", output_folder)
+    train = os.path.join("images", "train")
+    val = os.path.join("images", "val")
+    test = os.path.join("images", "test")
+
+    with open(f"{output_folder}.yaml", "w") as stream:
+        yaml.dump(
+            {
+                "names": classes,
+                "nc": number_of_classes,
+                "path": path,
+                "train": train,
+                "val": val,
+                "test": test,
+            },
+            stream,
+            default_flow_style=False,
+        )
 
 
 @click.command()
@@ -72,6 +99,8 @@ def main(**kwargs):
     percentage_empty = int(kwargs["percentage_empty"])
     img_format = kwargs["img_format"]
 
+    names_file = "obj.names"
+
     # --------------- Assertions --------------------
 
     assert "." not in img_format, "img_format must be without ."
@@ -95,6 +124,9 @@ def main(**kwargs):
     # --------------------- main --------------------
     CVAT_backup_folder = f"{CVAT_input_folder}_backup"
     shutil.copytree(CVAT_input_folder, CVAT_backup_folder)
+
+    classes = get_datset_classes(os.path.join(CVAT_input_folder, names_file))
+    form_yaml_file(output_folder, classes)
 
     if mode == "autosplit":
         autosplit(
