@@ -4,7 +4,7 @@ import random
 import yaml
 
 
-font = cv2.FONT_HERSHEY_PLAIN
+font = cv2.FONT_HERSHEY_COMPLEX
 color = (0, 255, 255)
 
 
