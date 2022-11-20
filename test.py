@@ -27,8 +27,8 @@ def draw_label(img, label, classes, img_pth):
     y2 = int((yc + yw / 2) * y_shape)
 
     cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 255), 2)
-    cv2.putText(img, label_name, (x1, y1), font, 3, color, 2)
-    cv2.putText(img, img_pth, (50, 50), font, 4, color, 2)
+    cv2.putText(img, label_name, (x1, y1), font, 2, color, 2)
+    cv2.putText(img, img_pth, (50, 50), font, 2, color, 2)
     return img
 
 
@@ -60,4 +60,4 @@ def draw_labels(
 
 
 if __name__ == "__main__":
-    draw_labels("out", "val", frame_scale=0.5)
+    draw_labels("out", "test", frame_scale=0.5)
