@@ -68,11 +68,5 @@ cvat2yolo --cvat my_datset --mode autosplit --split 0.9 --output_folder out/my_d
 help:
 
 ```
-cvat2yolo --h
-``` 
-
-or 
-
-```
-cvat2yolo -h
+cvat2yolo --help
 ```
