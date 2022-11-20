@@ -1,8 +1,7 @@
 import os
 
 import click
-from split_labels_and_images import split_lbl_img
-from create_yolov5_dataset import split_class_dir_ratio
+import shutil
 
 from split_auto import autosplit
 from split_manual import manualsplit
@@ -82,7 +81,7 @@ def main(**kwargs):
     if mode == "autosplit":
         assert abs(split) < 1, f"float split (0<split<1) is required, {split} was given"
         assert os.path.exists(
-            train_folder
+            os.path.join(CVAT_input_folder, train_folder)
         ), f"{train_folder} does not exist in {CVAT_input_folder}"
     elif mode == "manual":
         assert (
@@ -94,12 +93,15 @@ def main(**kwargs):
             print("WARNING: skipping split value n manual mode")
 
     # --------------------- main --------------------
+    CVAT_backup_folder = f"{CVAT_input_folder}_backup"
+    shutil.copytree(CVAT_input_folder, CVAT_backup_folder)
+
     if mode == "autosplit":
         autosplit(
             output_folder,
-            train_folder,
-            val_folder,
-            test_folder,
+            os.path.join(CVAT_input_folder, train_folder),
+            os.path.join(CVAT_input_folder, val_folder),
+            os.path.join(CVAT_input_folder, test_folder),
             img_format,
             split,
             percentage_empty,
@@ -108,16 +110,17 @@ def main(**kwargs):
     elif mode == "manual":
         manualsplit(
             output_folder,
-            train_folder,
-            val_folder,
-            test_folder,
+            os.path.join(CVAT_input_folder, train_folder),
+            os.path.join(CVAT_input_folder, val_folder),
+            os.path.join(CVAT_input_folder, test_folder),
             img_format,
             percentage_empty,
             lbl_extention="txt",
         )
-    # -----------------------------------------------
 
-    # shutil.rmtree(TEMP_FOLDER)
+    shutil.rmtree(CVAT_input_folder)
+    os.rename(CVAT_backup_folder, CVAT_input_folder)
+    # -----------------------------------------------
 
 
 if __name__ == "__main__":
