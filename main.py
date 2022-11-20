@@ -1,81 +1,178 @@
-import argparse
-from split_labels_and_images import split_lbl_img
-from create_yolov5_dataset import split_class_dir_ratio
+import os
+
+import click
 import shutil
+import yaml
+
+from split_auto import autosplit
+from split_manual import manualsplit
+from lib_utils import create_YOLOv5_folder_tree, remove_unwanted_classes
 
 
-TEMP_FOLDER = "TEMP"
+def get_datset_classes(names_file, classes_to_keep):
+    with open(names_file) as f:
+        dataset_names = f.read().splitlines()
+
+    if classes_to_keep == "keep-all":
+        return dataset_names
+    else:
+        classes_to_keep = classes_to_keep.split("|")
+        names = [n for n in dataset_names if n in classes_to_keep]
+        if len(names) == 0:
+            raise ValueError(
+                f"--classes arg is not valid, dataset classes: {dataset_names}"
+            )
+        print(f"KEEPING CLASSES: {names}")
+        return names
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Converts CVAT YOLO 1.1 to COCO format"
-    )
-    parser.add_argument(
-        "--CVAT",
-        dest="CVAT_input_folder",
-        required=True,
-        help="Path to the root folder of imported from CVAT YOLO 1.1 dataset",
-    )
-    parser.add_argument(
-        "--img_format", dest="img_format", required=True, help="Format of images"
-    )
-    parser.add_argument(
-        "--split",
-        dest="split",
-        type=float,
-        required=True,
-        help="A percentage of a split, e.g. 0.9 means split 0.9 for train and 0.1 for test",
-    )
-    parser.add_argument(
-        "--seed",
-        dest="seed",
-        type=int,
-        default=1227,
-        help="A random seed for reproducebiliry",
-    )
-    parser.add_argument(
-        "--output_folder",
-        dest="output_folder",
-        required=True,
-        help="Path to converted dataset folder {root}/{dataset name}",
-    )
-    parser.add_argument(
-        "--percentage_empty",
-        dest="percentage_empty",
-        default=10,
-        help="Percentage of images without any labels in relation to full dataset size",
-    )
+def form_yaml_file(output_folder, classes):
+    number_of_classes = len(classes)
+    path = os.path.join("data", output_folder)
+    train = os.path.join("images", "train")
+    val = os.path.join("images", "val")
+    test = os.path.join("images", "test")
 
-    args = parser.parse_args()
+    with open(f"{output_folder}.yaml", "w") as stream:
+        yaml.dump(
+            {
+                "names": classes,
+                "nc": number_of_classes,
+                "path": path,
+                "train": train,
+                "val": val,
+                "test": test,
+            },
+            stream,
+            default_flow_style=False,
+        )
+
+
+@click.command()
+@click.option(
+    "--cvat",
+    help="Path to the root folder of imported from CVAT YOLO 1.1 dataset",
+    required=True,
+    type=str,
+)
+@click.option(
+    "--mode",
+    help="'autosplit' or 'manual' (as it was exported from CVAT)",
+    required=True,
+    type=str,
+)
+@click.option(
+    "--output_folder",
+    help="Path to converted dataset folder, e.g. in format {root}/{dataset name}",
+    required=True,
+    type=str,
+)
+@click.option(
+    "--split",
+    help="A percentage of a split, e.g. 0.9 means split 0.9 for train and 0.1 for test",
+    type=float,
+)
+@click.option(
+    "--train_folder",
+    default="obj_Train_data",
+    help="Folder with Train subset inside cvat path (default obj_Train_data)",
+    type=str,
+)
+@click.option(
+    "--val_folder",
+    default="obj_Validation_data",
+    help="Folder with Val subset inside cvat path (default obj_Validation_data)",
+    type=str,
+)
+@click.option(
+    "--test_folder",
+    default="obj_Test_data",
+    help="Folder with Test subset inside cvat path (default obj_Test_data)",
+    type=str,
+)
+@click.option("--img_format", default="png", help="Format of images", type=str)
+@click.option(
+    "--percentage_empty",
+    default=10,
+    help="Percentage of images without any labels in relation to full dataset size",
+    type=float,
+)
+@click.option(
+    "--classes", default="keep-all", help="Classes which labels to keep", type=str
+)
+def main(**kwargs):
 
     # ------------------ ARG parse ------------------
-    CVAT_input_folder = args.CVAT_input_folder
-    img_format = args.img_format
-    split = args.split
-    seed = args.seed
-    output_folder = args.output_folder
-    percentage_empty = args.percentage_empty
-    # -----------------------------------------------
+    CVAT_input_folder = kwargs["cvat"]
+    mode = kwargs["mode"]
+    output_folder = kwargs["output_folder"]
+    split = kwargs["split"]
+    train_folder = kwargs["train_folder"]
+    val_folder = kwargs["val_folder"]
+    test_folder = kwargs["test_folder"]
+    percentage_empty = int(kwargs["percentage_empty"])
+    img_format = kwargs["img_format"]
+
+    names_file = "obj.names"
+    names_file_pth = os.path.join(CVAT_input_folder, names_file)
+    classes_to_keep = kwargs["classes"]
+
+    # --------------- Assertions --------------------
+
+    assert "." not in img_format, "img_format must be without ."
+    assert (
+        mode == "autosplit" or mode == "manual"
+    ), f"mode must be 'autosplit' or 'manual', {mode} was given"
+    if mode == "autosplit":
+        assert abs(split) < 1, f"float split (0<split<1) is required, {split} was given"
+        assert os.path.exists(
+            os.path.join(CVAT_input_folder, train_folder)
+        ), f"{train_folder} does not exist in {CVAT_input_folder}"
+    elif mode == "manual":
+        assert (
+            os.path.exists(train_folder)
+            or os.path.exists(val_folder)
+            or os.path.exists(test_folder)
+        ), f"At least one of {train_folder}, {val_folder} and {test_folder} must exist in {CVAT_input_folder}"
+        if split is not None:
+            print("WARNING: skipping split value n manual mode")
 
     # --------------------- main --------------------
-    assert "." not in img_format, "img_format must be without ."
-    split_lbl_img(CVAT_input_folder, TEMP_FOLDER, img_format, percentage_empty)
+    create_YOLOv5_folder_tree(output_folder)
 
-    images_dir = f"{TEMP_FOLDER}/images"
-    labels_dir = f"{TEMP_FOLDER}/labels"
-    split_class_dir_ratio(
-        TEMP_FOLDER,
-        images_dir,
-        labels_dir,
-        output_folder,
-        (split, 1 - split),
-        seed,
-        img_format,
-    )
+    CVAT_backup_folder = f"{CVAT_input_folder}_backup"
+    shutil.copytree(CVAT_input_folder, CVAT_backup_folder)
+
+    classes_to_keep = get_datset_classes(names_file_pth, classes_to_keep)
+    remove_unwanted_classes(CVAT_input_folder, names_file_pth, classes_to_keep)
+
+    form_yaml_file(output_folder, classes_to_keep)
+
+    if mode == "autosplit":
+        autosplit(
+            output_folder,
+            os.path.join(CVAT_input_folder, train_folder),
+            os.path.join(CVAT_input_folder, val_folder),
+            os.path.join(CVAT_input_folder, test_folder),
+            img_format,
+            split,
+            percentage_empty,
+            lbl_extention="txt",
+        )
+    elif mode == "manual":
+        manualsplit(
+            output_folder,
+            os.path.join(CVAT_input_folder, train_folder),
+            os.path.join(CVAT_input_folder, val_folder),
+            os.path.join(CVAT_input_folder, test_folder),
+            img_format,
+            percentage_empty,
+            lbl_extention="txt",
+        )
+
+    shutil.rmtree(CVAT_input_folder)
+    os.rename(CVAT_backup_folder, CVAT_input_folder)
     # -----------------------------------------------
-
-    shutil.rmtree(TEMP_FOLDER)
 
 
 if __name__ == "__main__":
