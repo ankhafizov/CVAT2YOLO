@@ -6,6 +6,7 @@ import yaml
 
 from split_auto import autosplit
 from split_manual import manualsplit
+from lib_utils import create_YOLOv5_folder_tree
 
 
 def get_datset_classes(names_file):
@@ -122,6 +123,8 @@ def main(**kwargs):
             print("WARNING: skipping split value n manual mode")
 
     # --------------------- main --------------------
+    create_YOLOv5_folder_tree(output_folder)
+
     CVAT_backup_folder = f"{CVAT_input_folder}_backup"
     shutil.copytree(CVAT_input_folder, CVAT_backup_folder)
 

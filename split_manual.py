@@ -6,7 +6,7 @@ import shutil
 
 from tqdm import tqdm
 
-from lib_utils import create_YOLOv5_folder_tree, is_txt_file_empty
+from lib_utils import is_txt_file_empty
 
 
 def get_file_paths_lists_for_subset(subset_folder_pth, img_extention, lbl_extention):
@@ -32,8 +32,6 @@ def manualsplit(
     percentage_empty,
     lbl_extention="txt",
 ):
-
-    create_YOLOv5_folder_tree(out_folder)
 
     img_lbl_file_pth_train = get_file_paths_lists_for_subset(
         train_folder_pth, img_extention, lbl_extention

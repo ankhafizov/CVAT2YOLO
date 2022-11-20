@@ -2,12 +2,11 @@ import os
 from random import shuffle
 
 from glob import glob
-from pathlib import Path
 import shutil
 
 from tqdm import tqdm
 
-from lib_utils import create_YOLOv5_folder_tree, is_txt_file_empty
+from lib_utils import is_txt_file_empty
 
 
 def get_file_paths_lists_for_training(
@@ -60,8 +59,6 @@ def autosplit(
     lbl_extention="txt",
 ):
 
-    create_YOLOv5_folder_tree(out_folder)
-
     img_lbl_file_pth_training = get_file_paths_lists_for_training(
         train_folder_pth, val_folder_pth, img_extention, lbl_extention
     )
@@ -73,7 +70,7 @@ def autosplit(
         img_lbl_file_pth_training, split_ratio
     )
 
-    print("Creating train dataset")
+    print(f"Creating train dataset | {out_folder}")
     N_files_train = len(img_lbl_file_pth_train)
     acceptable_N_of_empty_files = int(N_files_train * percentage_empty / 100)
     count_of_empty_files = 0
@@ -90,7 +87,7 @@ def autosplit(
             img, os.path.join(out_folder, "images", "train", os.path.basename(img))
         )
 
-    print("Creating val dataset")
+    print(f"Creating val dataset | {out_folder}")
     for img, lbl in tqdm(img_lbl_file_pth_val):
         shutil.copy(
             lbl, os.path.join(out_folder, "labels", "val", os.path.basename(lbl))
@@ -99,7 +96,7 @@ def autosplit(
             img, os.path.join(out_folder, "images", "val", os.path.basename(img))
         )
 
-    print("Creating test dataset")
+    print(f"Creating test dataset | {out_folder}")
     for img, lbl in tqdm(img_lbl_file_pth_test):
         shutil.copy(
             lbl, os.path.join(out_folder, "labels", "test", os.path.basename(lbl))
