@@ -63,7 +63,7 @@ cvat2yolo --cvat my_datset --mode autosplit --split 0.9 --output_folder out/my_d
 - --img_format - File format of images (default png)
 
 - --percentage_empty - Percentage of images without any labels in relation to full dataset size (default =10, optional)
-- --classes - Classes which labels to keep. So if in initiall dataset there are 3 classes (e.g. [A, B, C]), and there is flag ```--classes "A|C"```, only labels with classes A and C will be kept in output YOLO1.1 dataset.
+- --classes - Classes which labels to keep. So if in initiall dataset there are 3 classes (e.g. [A, B, C]), and there is flag ```--classes "A|C"```, only labels with classes A and C will be kept in output YOLOv5 dataset.
 
 help:
 
