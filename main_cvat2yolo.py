@@ -6,7 +6,7 @@ import yaml
 
 from split_auto import autosplit
 from split_manual import manualsplit
-from lib_utils import create_YOLOv5_folder_tree, remove_unwanted_classes
+from lib_utils_cvat2yolo import create_YOLOv5_folder_tree, remove_unwanted_classes
 
 
 def get_datset_classes(names_file, classes_to_keep):

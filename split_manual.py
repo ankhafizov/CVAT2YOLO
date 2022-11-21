@@ -6,7 +6,7 @@ import shutil
 
 from tqdm import tqdm
 
-from lib_utils import is_txt_file_empty
+from lib_utils_cvat2yolo import is_txt_file_empty
 
 
 def get_file_paths_lists_for_subset(subset_folder_pth, img_extention, lbl_extention):
