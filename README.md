@@ -53,7 +53,7 @@ cvat2yolo --cvat my_datset --mode autosplit --split 0.9 --output_folder out/my_d
 # Help:
 
 - --cvat - Path to the root folder of imported from cvat YOLO 1.1 dataset
-- --mode - "autosplit" or "manual" (as it was exported from cvat)
+- --mode - "autosplit" or "manual" (as it was exported from cvat, check the text above)
 - --output_folder - Path to converted dataset folder {root}{dataset name}
 
 - --split - A percentage of a split, e.g. 0.9 means split 0.9 for train and 0.1 for test (default None)
