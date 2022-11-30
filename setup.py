@@ -12,5 +12,7 @@ setup(
     },
     install_requires=[
         "PyYAML==6.0",
+        "click",
+        "tqdm"
     ],
 )
