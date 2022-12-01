@@ -15,13 +15,13 @@ Converter cvat dataset YOLO1.1 to YOLOv5 format
 1. If val and train parts splitted manually, folders train_folder and val_folder has to exist in cvat dataset folder:
 
 ```
-cvat2yolo --cvat my_datset --mode manual_split --train_folder obj_Train_data --val_folder obj_Validation_data  --test_folder obj_Test_data --img_format jpg --output_folder my_dataset_yolov5
+cvat2yolo --cvat my_datset --mode manual --train_folder obj_Train_data --val_folder obj_Validation_data  --test_folder obj_Test_data --img_format jpg --output_folder my_dataset_yolov5
 ```
 
 or more simplified (by default val_folder=obj_Validation_data, train_folder=my_obj_Train_data, test_folder=obj_Test_data, img_format=png will be taken):
 
 ```
-cvat2yolo --cvat my_datset --mode manual_split --output_folder my_dataset_yolov5
+cvat2yolo --cvat my_datset --mode manual --output_folder my_dataset_yolov5
 ```
 
 if any of train, val or test folder does not exist, there will not be created corresponding folders in the output directory.
