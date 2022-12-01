@@ -115,6 +115,9 @@ def main(**kwargs):
 
     names_file = "obj.names"
     names_file_pth = os.path.join(CVAT_input_folder, names_file)
+    train_folder = os.path.join(CVAT_input_folder, train_folder),
+    val_folder =os.path.join(CVAT_input_folder, val_folder),
+    test_folder =os.path.join(CVAT_input_folder, test_folder)
     classes_to_keep = kwargs["classes"]
 
     # --------------- Assertions --------------------
@@ -133,7 +136,7 @@ def main(**kwargs):
             os.path.exists(train_folder)
             or os.path.exists(val_folder)
             or os.path.exists(test_folder)
-        ), f"At least one of {train_folder}, {val_folder} and {test_folder} must exist in {CVAT_input_folder}"
+        ), f"At least one of {train_folder}, {val_folder} and {test_folder} must exist"
         if split is not None:
             print("WARNING: skipping split value n manual mode")
 
@@ -151,9 +154,9 @@ def main(**kwargs):
     if mode == "autosplit":
         autosplit(
             output_folder,
-            os.path.join(CVAT_input_folder, train_folder),
-            os.path.join(CVAT_input_folder, val_folder),
-            os.path.join(CVAT_input_folder, test_folder),
+            train_folder,
+            val_folder,
+            test_folder,
             img_format,
             split,
             percentage_empty,
@@ -162,9 +165,9 @@ def main(**kwargs):
     elif mode == "manual":
         manualsplit(
             output_folder,
-            os.path.join(CVAT_input_folder, train_folder),
-            os.path.join(CVAT_input_folder, val_folder),
-            os.path.join(CVAT_input_folder, test_folder),
+            train_folder,
+            val_folder,
+            test_folder,
             img_format,
             percentage_empty,
             lbl_extention="txt",
