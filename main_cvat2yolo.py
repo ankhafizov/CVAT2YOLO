@@ -115,9 +115,9 @@ def main(**kwargs):
 
     names_file = "obj.names"
     names_file_pth = os.path.join(CVAT_input_folder, names_file)
-    train_folder = os.path.join(CVAT_input_folder, train_folder),
-    val_folder =os.path.join(CVAT_input_folder, val_folder),
-    test_folder =os.path.join(CVAT_input_folder, test_folder)
+    train_folder = os.path.join(CVAT_input_folder, train_folder)
+    val_folder = os.path.join(CVAT_input_folder, val_folder)
+    test_folder = os.path.join(CVAT_input_folder, test_folder)
     classes_to_keep = kwargs["classes"]
 
     # --------------- Assertions --------------------
