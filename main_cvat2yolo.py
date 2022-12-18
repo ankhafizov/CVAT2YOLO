@@ -120,6 +120,9 @@ def main(**kwargs):
     test_folder = os.path.join(CVAT_input_folder, test_folder)
     classes_to_keep = kwargs["classes"]
 
+    CVAT_input_folder_copy = f"{CVAT_input_folder}_copy"
+    shutil.copytree(CVAT_input_folder, CVAT_input_folder_copy)
+
     # --------------- Assertions --------------------
 
     assert "." not in img_format, "img_format must be without ."
@@ -129,8 +132,8 @@ def main(**kwargs):
     if mode == "autosplit":
         assert abs(split) < 1, f"float split (0<split<1) is required, {split} was given"
         assert os.path.exists(
-            os.path.join(CVAT_input_folder, train_folder)
-        ), f"{train_folder} does not exist in {CVAT_input_folder}"
+            os.path.join(CVAT_input_folder_copy, train_folder)
+        ), f"{train_folder} does not exist in {CVAT_input_folder_copy}"
     elif mode == "manual":
         assert (
             os.path.exists(train_folder)
@@ -143,11 +146,8 @@ def main(**kwargs):
     # --------------------- main --------------------
     create_YOLOv5_folder_tree(output_folder)
 
-    CVAT_backup_folder = f"{CVAT_input_folder}_backup"
-    shutil.copytree(CVAT_input_folder, CVAT_backup_folder)
-
     classes_to_keep = get_datset_classes(names_file_pth, classes_to_keep)
-    remove_unwanted_classes(CVAT_input_folder, names_file_pth, classes_to_keep)
+    remove_unwanted_classes(CVAT_input_folder_copy, names_file_pth, classes_to_keep)
 
     form_yaml_file(output_folder, classes_to_keep)
 
@@ -173,8 +173,7 @@ def main(**kwargs):
             lbl_extention="txt",
         )
 
-    shutil.rmtree(CVAT_input_folder)
-    os.rename(CVAT_backup_folder, CVAT_input_folder)
+    shutil.rmtree(CVAT_input_folder_copy)
     # -----------------------------------------------
 
 
