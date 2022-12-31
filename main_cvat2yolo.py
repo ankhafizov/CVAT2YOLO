@@ -16,7 +16,9 @@ def get_datset_classes(names_file, classes_to_keep):
     if classes_to_keep == "keep-all":
         return dataset_names
     else:
+        print(classes_to_keep)
         classes_to_keep = classes_to_keep.split("|")
+        print(classes_to_keep)
         names = [n for n in dataset_names if n in classes_to_keep]
         if len(names) == 0:
             raise ValueError(
@@ -113,15 +115,14 @@ def main(**kwargs):
     percentage_empty = int(kwargs["percentage_empty"])
     img_format = kwargs["img_format"]
 
+    CVAT_work_folder = f"{CVAT_input_folder}_copy"
+    shutil.copytree(CVAT_input_folder, CVAT_work_folder)
     names_file = "obj.names"
-    names_file_pth = os.path.join(CVAT_input_folder, names_file)
-    train_folder = os.path.join(CVAT_input_folder, train_folder)
-    val_folder = os.path.join(CVAT_input_folder, val_folder)
-    test_folder = os.path.join(CVAT_input_folder, test_folder)
+    names_file_pth = os.path.join(CVAT_work_folder, names_file)
+    train_folder = os.path.join(CVAT_work_folder, train_folder)
+    val_folder = os.path.join(CVAT_work_folder, val_folder)
+    test_folder = os.path.join(CVAT_work_folder, test_folder)
     classes_to_keep = kwargs["classes"]
-
-    CVAT_input_folder_copy = f"{CVAT_input_folder}_copy"
-    shutil.copytree(CVAT_input_folder, CVAT_input_folder_copy)
 
     # --------------- Assertions --------------------
 
@@ -132,8 +133,8 @@ def main(**kwargs):
     if mode == "autosplit":
         assert abs(split) < 1, f"float split (0<split<1) is required, {split} was given"
         assert os.path.exists(
-            os.path.join(CVAT_input_folder_copy, train_folder)
-        ), f"{train_folder} does not exist in {CVAT_input_folder_copy}"
+            os.path.join(CVAT_work_folder, train_folder)
+        ), f"{train_folder} does not exist in {CVAT_work_folder}"
     elif mode == "manual":
         assert (
             os.path.exists(train_folder)
@@ -147,7 +148,7 @@ def main(**kwargs):
     create_YOLOv5_folder_tree(output_folder)
 
     classes_to_keep = get_datset_classes(names_file_pth, classes_to_keep)
-    remove_unwanted_classes(CVAT_input_folder_copy, names_file_pth, classes_to_keep)
+    remove_unwanted_classes(CVAT_work_folder, names_file_pth, classes_to_keep)
 
     form_yaml_file(output_folder, classes_to_keep)
 
@@ -173,7 +174,7 @@ def main(**kwargs):
             lbl_extention="txt",
         )
 
-    shutil.rmtree(CVAT_input_folder_copy)
+    shutil.rmtree(CVAT_work_folder)
     # -----------------------------------------------
 
 
