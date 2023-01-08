@@ -6,7 +6,11 @@ import yaml
 
 from split_auto import autosplit
 from split_manual import manualsplit
-from lib_utils_cvat2yolo import create_YOLOv5_folder_tree, remove_unwanted_classes
+from lib_utils_cvat2yolo import (
+    create_YOLOv5_folder_tree,
+    remove_unwanted_classes,
+    transform_cls_labels,
+)
 
 
 def get_datset_classes(names_file, classes_to_keep):
@@ -75,6 +79,12 @@ def form_yaml_file(output_folder, classes):
     type=float,
 )
 @click.option(
+    "--label_tfrms",
+    help="Label union with another existed in dataset (example: 'head->hood,helmet->hat')",
+    default=None,
+    type=str,
+)
+@click.option(
     "--train_folder",
     default="obj_Train_data",
     help="Folder with Train subset inside cvat path (default obj_Train_data)",
@@ -114,6 +124,7 @@ def main(**kwargs):
     test_folder = kwargs["test_folder"]
     percentage_empty = int(kwargs["percentage_empty"])
     img_format = kwargs["img_format"]
+    label_tfrms = kwargs["label_tfrms"]
 
     CVAT_work_folder = f"{CVAT_input_folder}_copy"
     shutil.copytree(CVAT_input_folder, CVAT_work_folder)
@@ -146,6 +157,9 @@ def main(**kwargs):
 
     # --------------------- main --------------------
     create_YOLOv5_folder_tree(output_folder)
+
+    if label_tfrms is not None:
+        transform_cls_labels(CVAT_work_folder, names_file_pth, label_tfrms)
 
     classes_to_keep = get_datset_classes(names_file_pth, classes_to_keep)
     remove_unwanted_classes(CVAT_work_folder, names_file_pth, classes_to_keep)

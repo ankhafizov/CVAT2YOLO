@@ -1,6 +1,7 @@
 from pathlib import Path
 import shutil
 from glob import glob
+from copy import deepcopy
 
 from tqdm import tqdm
 
@@ -70,6 +71,38 @@ def remove_unwanted_classes(CVAT_input_folder, names_file_pth, classes_to_keep):
         _correct_cls_in_txt_file(txt_file_pth, indxs_to_keep, old_new_indexes_hash_map)
 
     update_names_file(names_file_pth, classes_to_keep)
+
+
+def transform_cls_labels(CVAT_input_folder, names_file_pth, label_tfrms):
+    with open(names_file_pth) as f:
+        classes_original = f.read().splitlines()
+
+    classes_new = deepcopy(classes_original)
+
+    label_tfrms = label_tfrms.split(",")
+    for label_tfrm in label_tfrms:
+        old_label, new_label = label_tfrm.split("->")
+        assert (
+            old_label in classes_original
+        ), f"label_tfrm old_label {old_label} not in dataset classes {classes_original}"
+        assert (
+            new_label in classes_original
+        ), f"label_tfrm new_label {new_label} not in dataset classes {classes_original}"
+
+        classes_new = list(map(lambda x: x.replace(old_label, new_label), classes_new))
+
+    if classes_original == classes_new:
+        return
+
+    old_new_indexes_hash_map = {
+        i: classes_original.index(cls) for i, cls in enumerate(classes_new)
+    }
+
+    print(f"label_tfrms : {label_tfrms}")
+    for txt_file_pth in tqdm(glob(f"{CVAT_input_folder}/*/*.txt")):
+        _correct_cls_in_txt_file(
+            txt_file_pth, range(len(classes_original)), old_new_indexes_hash_map
+        )
 
 
 if __name__ == "__main__":
