@@ -144,7 +144,7 @@ def main(**kwargs):
     if mode == "autosplit":
         assert abs(split) < 1, f"float split (0<split<1) is required, {split} was given"
         assert os.path.exists(
-            os.path.join(CVAT_work_folder, train_folder)
+            os.path.join(train_folder)
         ), f"{train_folder} does not exist in {CVAT_work_folder}"
     elif mode == "manual":
         assert (
