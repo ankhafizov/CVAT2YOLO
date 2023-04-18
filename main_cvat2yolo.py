@@ -76,7 +76,7 @@ def form_yaml_file(output_folder, classes):
 @click.option(
     "--split",
     help="A percentage of a split, e.g. 0.9 means split 0.9 for train and 0.1 for test",
-    required=True,
+    default=0.7,
     type=float,
 )
 @click.option(
@@ -111,7 +111,10 @@ def form_yaml_file(output_folder, classes):
     type=float,
 )
 @click.option(
-    "--classes", default="keep-all", help="Classes which labels to keep", type=str
+    "--classes",
+    default="keep-all",
+    help="Classes which labels to keep (e.g. 'A|C')",
+    type=str,
 )
 def main(**kwargs):
 
