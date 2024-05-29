@@ -1,6 +1,6 @@
 # CVAT2YOLO Converter
 
-Converter cvat dataset YOLO1.1 to YOLOv5 format
+Converter cvat dataset YOLO1.1 to YOLO format (compatible with YOLOv5 and higher models)
 
 # Installation
 
@@ -64,7 +64,7 @@ cvat2yolo --cvat my_datset --mode autosplit --split 0.9 --output_folder out/my_d
 - --label_tfrms - Label union with another one existed in dataset (example: 'head->hood,helmet->hat' will unite
 'head' with 'hood' and 'helmet' with 'hat' resulting 'hood' and 'hat' in output dataset)
 
-- --percentage_empty - Percentage of images without any labels in relation to full dataset size (default =10, optional)
+- --percentage_empty - Allowed percentage of images without any labels in relation to full dataset size (default = 100, optional)
 - --classes - Classes which labels to keep. So if in initiall dataset there are 3 classes (e.g. [A, B, C]), and there is flag ```--classes "A|C"```, only labels with classes A and C will be kept in output YOLOv5 dataset.
 
 help:
@@ -72,3 +72,16 @@ help:
 ```
 cvat2yolo --help
 ```
+
+
+---
+
+## Converting Photos to the Same File Extension:
+
+If your dataset, which you exported from CVAT, contains images with different extensions, you need to first convert all the photos to a fixed format (e.g., png or jpg). Having photos with the same extension is mandatory for the cvat2yolo converter to work.
+
+So, first, you need to go into the make_same_extensions.py file in the repository and specify the folders where you need to change the extensions of the images. Next, you need to install the pillow library (for this, you need to run the command ```pip install pillow``` in the terminal).
+
+Then, you need to run the code to change the extensions by running this command in the terminal: ```python make_same_extensions.py```
+
+After all the folders containing images are converted to the same extensions, you can run the cvat2yolo code (ps: an alternative to running ```cvat2yolo``` may be to run the code in the terminal using the command ```python main_cvat2yolo.py```).

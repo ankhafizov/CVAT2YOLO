@@ -106,8 +106,8 @@ def form_yaml_file(output_folder, classes):
 @click.option("--img_format", default="png", help="Format of images", type=str)
 @click.option(
     "--percentage_empty",
-    default=10,
-    help="Percentage of images without any labels in relation to full dataset size",
+    default=100,
+    help="Allowed percentage of images without any labels in relation to full dataset size",
     type=float,
 )
 @click.option(
