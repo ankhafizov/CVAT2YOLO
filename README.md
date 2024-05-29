@@ -2,6 +2,12 @@
 
 Converter cvat dataset YOLO1.1 to YOLO format (compatible with YOLOv5 and higher models)
 
+---
+
+For a Russian-speaking audience, the tutorial video for this repository is available at the link - [YouTube Video](https://www.youtube.com/watch?v=bw95ipoyHnk)
+
+
+
 # Installation
 
 `git clone https://github.com/ankhafizov/CVAT2YOLO.git`
